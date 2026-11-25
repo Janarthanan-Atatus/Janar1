@@ -182,4 +182,15 @@ app.get('/redirect', (req, res) => {
   return res.redirect(url);
 });
 
+// INTENTIONAL VULNERABILITY (scanner test only) #1: SQL injection via string concatenation
+app.get('/search', (req, res) => {
+  const query = "SELECT * FROM products WHERE name = '" + req.query.q + "'";
+  db.query(query, (err, rows) => res.json(rows));
+});
+
+// INTENTIONAL VULNERABILITY (scanner test only) #2: code injection via eval() on user input
+app.post('/run', (req, res) => {
+  res.send(String(eval(req.body.code)));
+});
+
 app.listen(config.PORT);
