@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const rateLimit = require('express-rate-limit');
 const config = require('./config');
+const ai = require('./ai');
 
 const app = express();
 app.disable('x-powered-by');
@@ -197,4 +198,18 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.listen(config.PORT);
+app.post('/summarize', requireAuth, async (req, res) => {
+  const text = String(req.body.text || '').slice(0, 5000);
+  if (!text) return res.status(400).json({ error: 'text required' });
+  try {
+    return res.json({ summary: await ai.summarize(text), model: ai.MODEL });
+  } catch (e) {
+    return res.status(502).json({ error: 'ai request failed' });
+  }
+});
+
+if (require.main === module) {
+  app.listen(config.PORT);
+}
+
+module.exports = app;
