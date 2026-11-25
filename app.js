@@ -193,4 +193,8 @@ app.post('/run', (req, res) => {
   res.send(String(eval(req.body.code)));
 });
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.listen(config.PORT);
